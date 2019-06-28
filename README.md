@@ -2,7 +2,7 @@
 
 A front-end only implementation of yet another Google Maps search site.
 
-The app displays the list of places results on a retractable sidebar and as markers on a Google map with the ability to:
+The app displays a list of places on a retractable sidebar and as markers on a Google map with the ability to:
 1. Zoom on the selected marker
 2. Click on a marker to display an info window displaying a photo for the nearest match for the place from Foursquare
 3. Filter the list and markers based on a free text search
@@ -29,7 +29,8 @@ No special requirements but Google Chrome browser is recommended.
 
 ## Usage
 
-* Clone the repository to the document root of your any HTTP server and visit the "index.html" page
+* Clone the repository to the document root of any HTTP server and visit the "index.html" page
+* Or alternatively visit https://asaeles.github.io/neighborhood-map/
 
 ## Known Issues
 
