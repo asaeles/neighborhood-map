@@ -1,0 +1,106 @@
+/* Prevent scrolling */
+body {
+  overflow: hidden;
+}
+
+/* Attribution: https://bootstrapious.com/p/bootstrap-sidebar */
+/* Collapsible HTML sidebar navigation using Bootstrap 4 */
+
+#sidebar {
+  min-width: 250px;
+  max-width: 250px;
+  transition: all 0.3s;
+}
+
+/* If sidebar is active then it is hidden! */
+#sidebar.active {
+  margin-left: -250px;
+}
+
+/* Reverse the meaning of the active class for small displays */
+@media (max-width: 768px) {
+  #sidebar {
+    margin-left: -250px;
+  }
+  #sidebar.active {
+    margin-left: 0;
+  }
+}
+
+.toast {
+  position: absolute;
+  bottom: 30px;
+}
+
+/* Allow vertical scrolling for places list */
+.list-group {
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+/* Attribution: https://www.w3schools.com/howto/howto_css_custom_scrollbar.asp */
+/* Create a custom scrollbar with CSS */
+/* Custom scrollbars are not supported in Firefox or IE/Edge */
+.list-group::-webkit-scrollbar {
+  width: 5px;
+}
+.list-group::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.list-group::-webkit-scrollbar-thumb {
+  background: #888;
+}
+.list-group::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.list-group-item {
+  /* min-height: 60px; */
+  /* overflow-x: scroll; */
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Attribution: https://www.quackit.com/css/codes/marquees/ */
+/* CSS marquees using animation instead of obsoleted HTML marquees */
+/* Will use it only for list elements with overflowed text  */
+.overflowed {
+  /* Starting position */
+  -moz-transform: translateX(100%);
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
+  /* Apply animation to this element */
+  -moz-animation: scrolling 10s linear infinite;
+  -webkit-animation: scrolling 10s linear infinite;
+  animation: scrolling 10s linear infinite;
+}
+
+/* Move it (define the animation) */
+@-moz-keyframes scrolling {
+  0% {
+    -moz-transform: translateX(100%);
+  }
+  100% {
+    -moz-transform: translateX(-100%);
+  }
+}
+@-webkit-keyframes scrolling {
+  0% {
+    -webkit-transform: translateX(100%);
+  }
+  100% {
+    -webkit-transform: translateX(-100%);
+  }
+}
+@keyframes scrolling {
+  0% {
+    -moz-transform: translateX(100%); /* Firefox bug fix */
+    -webkit-transform: translateX(100%); /* Firefox bug fix */
+    transform: translateX(100%);
+  }
+  100% {
+    -moz-transform: translateX(-100%); /* Firefox bug fix */
+    -webkit-transform: translateX(-100%); /* Firefox bug fix */
+    transform: translateX(-100%);
+  }
+}

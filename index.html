@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Neighborhood Map</title>
+
+    <!-- <<<<<<< External Style Sheets >>>>>>> -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <!-- <<<<<<< Internal Style Sheet >>>>>>> -->
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="css/asaeles.css" rel="stylesheet" />
+    <!-- <link href="css/maps.css" rel="stylesheet" /> -->
+
+    <!-- <<<<<<< External Java Scripts >>>>>>> -->
+    <script src="js/jquery.slim.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.scrollTo.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <!-- As styling JS is important run first just after jQuery-->
+    <script src="js/style.js"></script>
+    <!-- <script src="https://kit.fontawesome.com/99ed2ba409.js"></script> -->
+    <script src="js/knockout-min.js"></script>
+    <!-- <<<<<<< Internal Java Scripts >>>>>>> -->
+    <script src="js/app.js"></script>
+    <script src="js/maps.js"></script>
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid float-left col-1 pl-0">
+          <button
+            type="button"
+            id="sidebarCollapse"
+            class="btn btn-info"
+            data-bind="click: function() { sidebarActive(!sidebarActive()); }"
+          >
+            <i class="fa-bars"></i>
+          </button>
+        </div>
+        <h1 class="text-right h6 col-11 pr-0">Neighborhood Map</h1>
+      </nav>
+    </header>
+    <div class="d-flex flex-row">
+      <!-- Sidebar -->
+      <nav
+        class="p-2"
+        id="sidebar"
+        data-bind="css: { active: sidebarActive() }"
+      >
+        <div class="sidebar-header">
+          <h5>McDonald's</h5>
+        </div>
+        <ul class="nav nav-tabs nav-justified" id="sidebar-tabs" role="tablist">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              id="search-tab"
+              data-toggle="tab"
+              href="#search"
+              role="tab"
+              aria-controls="search"
+              aria-selected="true"
+              >Search</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link active"
+              id="results-tab"
+              data-toggle="tab"
+              href="#results"
+              role="tab"
+              aria-controls="results"
+              aria-selected="false"
+              >Results</a
+            >
+          </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+          <!-- No functionality implemented yet, just for show -->
+          <!------------------- Start of show ------------------->
+          <div
+            class="tab-pane fade"
+            id="search"
+            role="tabpanel"
+            aria-labelledby="search-tab"
+          >
+            <form>
+              <div class="form-group mt-3">
+                <label class="sr-only" for="business">Business</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="business"
+                    placeholder="business or landmark"
+                  />
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <i class="fa-utensils mr-2"></i>
+                      <i class="fa-building"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group mt-3">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="location-type"
+                    id="specific-location"
+                    value="specific"
+                    data-bind="checked: locationType"
+                  />
+                  <label class="form-check-label" for="specific-location">
+                    Specify region
+                  </label>
+                </div>
+                <label class="sr-only" for="country">Country</label>
+                <div class="form-group my-1 ml-3">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="country"
+                      placeholder="country"
+                      data-bind="enable: locationType() == 'specific'"
+                    />
+                    <div class="input-group-append">
+                      <div class="input-group-text">
+                        <i class="fa-flag"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="location-type"
+                    id="map-location"
+                    value="map"
+                    data-bind="checked: locationType"
+                  />
+                  <label class="form-check-label" for="map-location">
+                    Map location
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="location-type"
+                    id="current-location"
+                    value="current"
+                    data-bind="checked: locationType"
+                  />
+                  <label class="form-check-label" for="current-location">
+                    Current location
+                  </label>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 my-2">
+                Search
+              </button>
+            </form>
+          </div>
+          <!-------------------- End of show -------------------->
+          <div
+            class="tab-pane fade show active"
+            id="results"
+            role="tabpanel"
+            aria-labelledby="results-tab"
+          >
+            <form>
+              <div class="form-group mt-3">
+                <label class="sr-only" for="filter">Filter</label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="filter"
+                    placeholder="filter"
+                    data-bind="textInput: filterText"
+                  />
+                  <div class="input-group-append">
+                    <div class="input-group-text">
+                      <i class="fa-filter"></i>
+                    </div>
+                  </div>
+                  <button
+                    class="btn btn-primary ml-1"
+                    data-bind="click: fitToBounds"
+                  >
+                    <i class="fa-arrows-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+            <!-- Link list to observable array placesList and after
+            each addition run the linkElement to link the place
+            object to the HTML LI element -->
+            <ul
+              class="list-group list-group-flush"
+              data-bind="foreach: { data: placesList, afterAdd: linkElement }"
+            >
+              <!-- Set the active CSS class if the element's place
+              is selected.
+              Set the hidden attribute if the filterPlace
+              returns true, this function does a lot more
+              than just search for text (please refer to 'app.js') -->
+              <li
+                href="#"
+                class="list-group-item list-group-item-action"
+                data-bind="css: { active: selected },
+                  click: $root.placeClicked,
+                  hidden: $root.filterPlace($data)"
+              >
+                <!-- Generate a nice marquee effect for long titles  -->
+                <div
+                  data-bind="css: { overflowed: title().length > 30 },
+                    text: title"
+                ></div>
+                <!-- The address div is only shown for the selected
+                place, this adds a pinch of performance enhancement
+                because KO don't check for bindings on children
+                elements when the "if" is false -->
+                <div data-bind="if: selected">
+                  <!-- Suppress too short addresses (rubbish) -->
+                  <small
+                    data-bind="text: address, visible: address().length > 3"
+                  ></small>
+                  <small
+                    style="display: block;"
+                    data-bind="text: city, visible: city().length > 3"
+                  ></small>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Content -->
+      <main class="w-100">
+        <div class="w-100 h-100" id="map"></div>
+      </main>
+    </div>
+    <footer>
+      <!-- Standard Bootstrap Toast hidden by default -->
+      <div
+        class="toast alert-warning"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        data-autohide="false"
+      >
+        <div class="toast-header">
+          <strong id="toast-title" class="mr-auto">Bootstrap</strong>
+          <button
+            type="button"
+            class="ml-2 mb-1 close"
+            data-dismiss="toast"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div id="toast-message" class="toast-body">
+          Hello, world! This is a toast message.
+        </div>
+      </div>
+    </footer>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyB8w8G6aeo8SKyZbyOYlYCFtWdDdTm0w0w&v=3&callback=initMap"
+    ></script>
+  </body>
+</html>
