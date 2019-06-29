@@ -1,11 +1,14 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
+'use strict'
+
 var map
 var largeInfoWindow
 var defaultIcon
 var highlightedIcon
 var selectedIcon
 var currentMarker
+var errorLoadingMapsApi = false
 
 // This function takes in a COLOR, and then creates a new marker
 // icon of that color. The icon will be 21 px wide by 34 high, have an origin
@@ -25,6 +28,9 @@ function makeMarkerIcon (markerColor) {
 
 // eslint-disable-next-line no-unused-vars
 function initMap () {
+  if (errorLoadingMapsApi) {
+    return
+  }
   // Constructor creates a new map - only center and zoom are required.
   map = new google.maps.Map(document.getElementById('map'), {
     center: { lat: 26.244653, lng: 29.3780723 },
@@ -54,7 +60,7 @@ function initMap () {
    one infoWindow which will open at the marker that is clicked, and populate based
    on that markers position.
  */
-function populateInfoWindow (marker, infoWindow, place) {
+function populateInfoWindow (marker, infoWindow) {
   // console.dir("populateInfoWindow for " + place.title());
   // Check to make sure the infoWindow is not already opened on this marker.
   if (infoWindow.marker !== marker) {
@@ -82,31 +88,9 @@ function populateInfoWindow (marker, infoWindow, place) {
    two together
 */
 function createMarker (position, title, place) {
-  // This is the first API to be hit by
-  //  connection issues and so I will check
-  //  first for the status of the Google API
-  //  object here
-  // If there any errors during the check
-  //  then I'll assume this is due to
-  //  connection issues
-  var errorLoading = false
-  try {
-    if (!(typeof google === 'object') || !(typeof google.maps === 'object')) {
-      errorLoading = true
-    }
-  } catch (error) {
-    errorLoading = true
+  if (errorLoadingMapsApi) {
+    return null
   }
-
-  // If there is an error report connection issue to the user
-  if (errorLoading) {
-    showError(
-      'Error',
-      'Cannot load Google Maps API, please check your internet connection',
-      'error loading Google Maps'
-    )
-  }
-
   // Create a marker per location, and put into markers array.
   var marker = new google.maps.Marker({
     map: map,
@@ -121,14 +105,6 @@ function createMarker (position, title, place) {
     // console.dir("marker clicked");
     // Set the current place to that of the marker
     viewModel.setCurrentPlace(place)
-    // Scroll to the selected place in the list
-    // Thank God there is such a function
-    $('.list-group').scrollTo(place.$element, {
-      axis: 'y',
-      duration: 500
-    })
-    // Now populate and show the info window
-    populateInfoWindow(this, largeInfoWindow, place)
   })
   // Two event listeners - one for mouseover, one for mouseout,
   // to change the colors back and forth.

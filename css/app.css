@@ -6,23 +6,23 @@ body {
 /* Attribution: https://bootstrapious.com/p/bootstrap-sidebar */
 /* Collapsible HTML sidebar navigation using Bootstrap 4 */
 
-#sidebar {
+.sidebar {
   min-width: 250px;
   max-width: 250px;
   transition: all 0.3s;
 }
 
 /* If sidebar is active then it is hidden! */
-#sidebar.active {
+.sidebar.active {
   margin-left: -250px;
 }
 
 /* Reverse the meaning of the active class for small displays */
 @media (max-width: 768px) {
-  #sidebar {
+  .sidebar {
     margin-left: -250px;
   }
-  #sidebar.active {
+  .sidebar.active {
     margin-left: 0;
   }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8" />
@@ -49,137 +49,15 @@
     <div class="d-flex flex-row">
       <!-- Sidebar -->
       <nav
-        class="p-2"
+        class="sidebar p-2"
         id="sidebar"
         data-bind="css: { active: sidebarActive() }"
       >
         <div class="sidebar-header">
           <h5>McDonald's</h5>
         </div>
-        <ul class="nav nav-tabs nav-justified" id="sidebar-tabs" role="tablist" hidden>
-          <li class="nav-item">
-            <a
-              class="nav-link"
-              id="search-tab"
-              data-toggle="tab"
-              href="#search"
-              role="tab"
-              aria-controls="search"
-              aria-selected="true"
-              >Search</a
-            >
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link active"
-              id="results-tab"
-              data-toggle="tab"
-              href="#results"
-              role="tab"
-              aria-controls="results"
-              aria-selected="false"
-              >Results</a
-            >
-          </li>
-        </ul>
         <div class="tab-content" id="myTabContent">
-          <!-- No functionality implemented yet, just for show -->
-          <!------------------- Start of show ------------------->
-          <div
-            class="tab-pane fade"
-            id="search"
-            role="tabpanel"
-            aria-labelledby="search-tab"
-            hidden
-          >
-            <form>
-              <div class="form-group mt-3">
-                <label class="sr-only" for="business">Business</label>
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="business"
-                    placeholder="business or landmark"
-                  />
-                  <div class="input-group-append">
-                    <div class="input-group-text">
-                      <i class="fa-utensils mr-2"></i>
-                      <i class="fa-building"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group mt-3">
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    name="location-type"
-                    id="specific-location"
-                    value="specific"
-                    data-bind="checked: locationType"
-                  />
-                  <label class="form-check-label" for="specific-location">
-                    Specify region
-                  </label>
-                </div>
-                <label class="sr-only" for="country">Country</label>
-                <div class="form-group my-1 ml-3">
-                  <div class="input-group">
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="country"
-                      placeholder="country"
-                      data-bind="enable: locationType() == 'specific'"
-                    />
-                    <div class="input-group-append">
-                      <div class="input-group-text">
-                        <i class="fa-flag"></i>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    name="location-type"
-                    id="map-location"
-                    value="map"
-                    data-bind="checked: locationType"
-                  />
-                  <label class="form-check-label" for="map-location">
-                    Map location
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    name="location-type"
-                    id="current-location"
-                    value="current"
-                    data-bind="checked: locationType"
-                  />
-                  <label class="form-check-label" for="current-location">
-                    Current location
-                  </label>
-                </div>
-              </div>
-              <button type="submit" class="btn btn-primary w-100 my-2">
-                Search
-              </button>
-            </form>
-          </div>
-          <!-------------------- End of show -------------------->
-          <div
-            class="tab-pane fade show active"
-            id="results"
-            role="tabpanel"
-            aria-labelledby="results-tab"
-          >
+          <div class="tab-pane fade show active" id="results" role="tabpanel">
             <form>
               <div class="form-group mt-3">
                 <label class="sr-only" for="filter">Filter</label>
@@ -210,7 +88,7 @@
             object to the HTML LI element -->
             <ul
               class="list-group list-group-flush"
-              data-bind="foreach: { data: placesList, afterAdd: linkElement }"
+              data-bind="foreach: { data: placesList }"
             >
               <!-- Set the active CSS class if the element's place
               is selected.
@@ -218,15 +96,15 @@
               returns true, this function does a lot more
               than just search for text (please refer to 'app.js') -->
               <li
-                href="#"
                 class="list-group-item list-group-item-action"
                 data-bind="css: { active: selected },
                   click: $root.placeClicked,
+                  koScrollTo: selected,
                   hidden: $root.filterPlace($data)"
               >
                 <!-- Generate a nice marquee effect for long titles  -->
                 <div
-                  data-bind="css: { overflowed: title().length > 30 },
+                  data-bind="css: { overflowed: title.length > 30 },
                     text: title"
                 ></div>
                 <!-- The address div is only shown for the selected
@@ -236,11 +114,11 @@
                 <div data-bind="if: selected">
                   <!-- Suppress too short addresses (rubbish) -->
                   <small
-                    data-bind="text: address, visible: address().length > 3"
+                    data-bind="text: address, visible: address.length > 3"
                   ></small>
                   <small
                     style="display: block;"
-                    data-bind="text: city, visible: city().length > 3"
+                    data-bind="text: city, visible: city.length > 3"
                   ></small>
                 </div>
               </li>
@@ -256,19 +134,24 @@
         to be used as content for the window and still make use
         of KO bindings -->
         <div id="info-window" data-bind="with: currentPlace()">
-          <h6 data-bind="text: title"></h6>
+          <h6 data-bind="text: title">Error</h6>
           <div
             data-bind="text: photoStatus,
               visible: photoStatus() != ''"
           ></div>
           <div>
             <a
+              href=""
               rel="noopener noreferrer"
               target="_blank"
-              data-bind="attr: { href: photoAttribution,
-              visible: photoStatus() == ''}"
+              data-bind="attr: { href: photoAttribution },
+              visible: photoStatus() == ''"
             >
-              <img data-bind="attr: { src: photoUrl }" />
+              <img
+                src="pixel.png"
+                alt="Foursquare photo"
+                data-bind="attr: { src: photoUrl }"
+              />
             </a>
           </div>
           <small id="attribution">Photos provided by Foursquare</small>
@@ -278,6 +161,7 @@
     <footer>
       <!-- Standard Bootstrap Toast hidden by default -->
       <div
+        id="toast"
         class="toast alert-warning"
         role="alert"
         aria-live="assertive"
@@ -304,6 +188,7 @@
       async
       defer
       src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry,drawing&key=AIzaSyB8w8G6aeo8SKyZbyOYlYCFtWdDdTm0w0w&v=3&callback=initMap"
+      onerror="(function() { errorLoadingMapsApi = true; })()"
     ></script>
   </body>
 </html>

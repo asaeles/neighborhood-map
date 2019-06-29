@@ -1,26 +1,48 @@
 /* eslint-disable no-undef */
+'use strict'
+
 const FSQ_CLIENT_ID = 'W3X0AT5NV3YZAU2LQPC2XSZADKGSRXCD1DFMAO0HATQBZN53'
 const FSQ_CLIENT_SECRET = 'R3OKIAZ4QYQBH2XYZ1OFB2OWFWQJPKKCOKIUPV0JVI22Y2YR'
-var toastShown = false
+var viewModel
+
+// http://jsfiddle.net/qczdvkat/1/
+ko.bindingHandlers.koScrollTo = {
+  update: function (element, valueAccessor, allBindings) {
+    var _value = valueAccessor()
+    var _valueUnwrapped = ko.unwrap(_value)
+    if (_valueUnwrapped) {
+      // Scroll to the selected place in the list
+      // Thank God there is such a function
+      $('.list-group').scrollTo(element, {
+        axis: 'y',
+        duration: 500
+      })
+    }
+  }
+}
 
 // Show toast error message for user
 var showError = function (title, message, error) {
+  var toastShown
+  // Check if toast is displayed or no
+  if ($('#toast').hasClass('hide')) {
+    toastShown = false
+  } else {
+    toastShown = true
+  }
   viewModel.toastTitle(title)
   var toastMessage = viewModel.toastMessage()
-  if (toastShown && !toastMessage.includes(message)) {
+  // If toast is already displayed then append the new
+  //  message to the existing one
+  if (toastShown && toastMessage !== '' && !toastMessage.includes(message)) {
     viewModel.toastMessage(toastMessage + '<br />\n' + message)
   } else {
+    // Otherwise replace the message
     viewModel.toastMessage(message)
   }
-  $('.toast').toast('show')
+  $('#toast').toast('show')
   console.error(error)
 }
-$('.toast').on('shown.bs.toast', function () {
-  toastShown = true
-})
-$('.toast').on('hide.bs.toast', function () {
-  toastShown = false
-})
 
 /*
   The place class will hold all the KO observables
@@ -41,39 +63,34 @@ class Place {
   */
   constructor (data) {
     var self = this
-    self.id = ko.observable(data.place_id)
-    self.title = ko.observable(data.name)
-    self.address = ko.observable(data.formatted_address)
-    self.position = ko.observable(data.geometry.location)
+    self.id = data.place_id
+    self.title = data.name
+    self.address = data.formatted_address
+    self.position = data.geometry.location
     self.photoUrlFetched = ko.observable(false)
     self.photoStatus = ko.observable(' ')
     self.photoAttribution = ko.observable('')
     self.photoUrl = ko.observable('')
-    self.marker = createMarker(self.position(), self.title(), this)
+    self.marker = createMarker(self.position, self.title, this)
     // Extract the city name from the start of the
     //  compound code value using regular expressions
     var match = data.plus_code.compound_code.match(/[^ ]+ ([^,]+)/)
     if (match) {
-      match = match[1]
+      self.city = match[1]
     } else {
-      match = ''
+      self.city = ''
     }
-    self.city = ko.observable(match)
 
     /*
       Create an always ready computed haystack
        text to be used in filtering by concatenating
        all the required fields
     */
-    self.haystack = ko.computed(function () {
-      return (
-        self.title().toLowerCase() +
-        ' ' +
-        self.address().toLowerCase() +
-        ' ' +
-        self.city().toLowerCase()
-      )
-    }, this)
+    self.haystack = self.title.toLowerCase() +
+      ' ' +
+      self.address.toLowerCase() +
+      ' ' +
+      self.city.toLowerCase()
 
     /*
       The function performs the actions required to
@@ -84,8 +101,11 @@ class Place {
     */
     self.selected = ko.observable(false)
     self.select = function () {
-      // console.dir("self.select " + self.title());
+      // console.dir("self.select " + self.title);
       self.selected(true)
+      if (errorLoadingMapsApi) {
+        return
+      }
       // Fetch the photo URL in the background
       //  right upon place selection to save some
       //  load time and enhance user experience
@@ -94,7 +114,7 @@ class Place {
       self.loadFoursquarePhoto()
       currentMarker = self.marker
       self.marker.setIcon(selectedIcon)
-      populateInfoWindow(self.marker, largeInfoWindow, self)
+      populateInfoWindow(self.marker, largeInfoWindow)
       // Bounce the selected marker twice
       self.marker.setAnimation(google.maps.Animation.BOUNCE)
       // Each bounce takes approximately 700ms
@@ -113,7 +133,11 @@ class Place {
        setCurrentPlace function on the root level
     */
     self.deselect = function () {
-      // console.dir("self.deselect " + self.title());
+      // console.dir("self.deselect " + self.title);
+      self.selected(false)
+      if (errorLoadingMapsApi) {
+        return
+      }
       // If selection change was fast animation will
       //  be still running on old marker so stop it
       self.marker.setAnimation(null)
@@ -130,7 +154,6 @@ class Place {
         largeInfoWindow.close()
         largeInfoWindow.marker = null
       }
-      self.selected(false)
     }
 
     /*
@@ -138,14 +161,17 @@ class Place {
        position showing street level details
     */
     self.zoom = function () {
-      // console.dir("self.zoom to " + self.title());
+      if (errorLoadingMapsApi) {
+        return
+      }
+      // console.dir("self.zoom to " + self.title);
       // Use the fit bounds function by calculating
       //  a border box around the marker position
       map.fitBounds({
-        east: self.position().lng + 0.001,
-        north: self.position().lat + 0.001,
-        south: self.position().lat - 0.001,
-        west: self.position().lng - 0.001
+        east: self.position.lng + 0.001,
+        north: self.position.lat + 0.001,
+        south: self.position.lat - 0.001,
+        west: self.position.lng - 0.001
       })
     }
 
@@ -161,10 +187,8 @@ class Place {
        is pressed to display info window
     */
     self.loadFoursquarePhoto = function () {
+      // console.dir("self.loadFoursquarePhoto for " + self.title);
       self.photoStatus('Loading photo...')
-      // console.dir(
-      //   "self.loadFoursquarePhoto for " + self.title()
-      // );
 
       // If the photo URL is already fetched avoid
       //  going through the fetching process again
@@ -179,14 +203,14 @@ class Place {
         '&client_secret=' +
         FSQ_CLIENT_SECRET +
         '&v=20190601&limit=1&ll=' +
-        self.position().lat +
+        self.position.lat +
         ',' +
-        self.position().lng +
+        self.position.lng +
         '&query=' +
         'mcdonald'
       $.ajax(url, { dataType: 'jsonp' })
         .done(function (data) {
-          // console.dir("Requesting venue Id done for " + self.title());
+          // console.dir("Requesting venue Id done for " + self.title);
           // Exit on HTTP error
           if (data.meta.code !== 200) {
             self.photoStatus('Sorry, no photo available 😔')
@@ -214,7 +238,7 @@ class Place {
             // Exit
             return
           }
-          // console.dir("Got venue Id " + venueId + " done for " + self.title());
+          // console.dir("Got venue Id " + venueId + " done for " + self.title);
           // Second use the previously retrieved venue Id to
           //  get the photo URL
           var url =
@@ -228,7 +252,7 @@ class Place {
             '&v=20190601&limit=1'
           $.ajax(url, { dataType: 'jsonp' })
             .done(function (data) {
-              // console.dir("Requesting photo URL done for " + self.title());
+              // console.dir("Requesting photo URL done for " + self.title);
               // Exit on HTTP error
               if (data.meta.code !== 200) {
                 // Handle a common HTTP error returned by
@@ -325,7 +349,7 @@ var ViewModel = function () {
   }
   // Function to handle selecting a place
   self.setCurrentPlace = function (place) {
-    // console.dir("self.setCurrentPlace to " + place.title());
+    // console.dir("self.setCurrentPlace to " + place.title);
     // If there is a previous place set as current
     if (self.currentPlace()) {
       // Then if it equals the newly passed one then
@@ -348,15 +372,6 @@ var ViewModel = function () {
     // The only way is to clear then re-apply
     ko.cleanNode($('#info-window')[0])
     ko.applyBindings(viewModel, $('#info-window')[0])
-  }
-
-  // Link the LI element to the KO place object
-  //  to simplify view manipulation later on
-  self.linkElement = function (element, index, data) {
-    if (element.parentNode.nodeName !== 'UL' || element.nodeName !== 'LI') {
-      return
-    }
-    data.$element = $(element)
   }
 
   // ************ Zoom to displayed markers ************ //
@@ -397,23 +412,26 @@ var ViewModel = function () {
   */
   self.updateBounds = function (place) {
     var margin = 0.001
-    if (place.position().lng > self.bounds.east - margin) {
-      self.bounds.east = place.position().lng + margin
+    if (place.position.lng > self.bounds.east - margin) {
+      self.bounds.east = place.position.lng + margin
     }
-    if (place.position().lat > self.bounds.north - margin) {
-      self.bounds.north = place.position().lat + margin
+    if (place.position.lat > self.bounds.north - margin) {
+      self.bounds.north = place.position.lat + margin
     }
-    if (place.position().lat < self.bounds.south + margin) {
-      self.bounds.south = place.position().lat - margin
+    if (place.position.lat < self.bounds.south + margin) {
+      self.bounds.south = place.position.lat - margin
     }
-    if (place.position().lng < self.bounds.west + margin) {
-      self.bounds.west = place.position().lng - margin
+    if (place.position.lng < self.bounds.west + margin) {
+      self.bounds.west = place.position.lng - margin
     }
   }
 
   // Finally a function that the actual map zoom
   // It will be attached to a button on the view
   self.fitToBounds = function () {
+    if (errorLoadingMapsApi) {
+      return
+    }
     map.fitBounds(self.bounds)
   }
 
@@ -468,7 +486,7 @@ var ViewModel = function () {
         .toLowerCase()
         .split(' ')
         .forEach(needle => {
-          if (place.haystack().indexOf(needle) === -1) {
+          if (place.haystack.indexOf(needle) === -1) {
             hidden = true
             // eslint-disable-next-line no-useless-return
             return
@@ -486,6 +504,9 @@ var ViewModel = function () {
       self.filterHandled = true
       // Select the first displayed place
       self.setCurrentPlace(place)
+    }
+    if (errorLoadingMapsApi) {
+      return hidden
     }
     // If place is hidden then hide its
     //  corresponding marker
@@ -523,4 +544,12 @@ window.addEventListener('load', function () {
   viewModel.isLoadingPlaces(true)
   viewModel.loadPlaces(mcData.results)
   viewModel.isLoadingPlaces(false)
+  // If there is an error report connection issue to the user
+  if (errorLoadingMapsApi) {
+    showError(
+      'Error',
+      'Cannot load Google Maps API, please check your internet connection',
+      'Error loading Google Maps'
+    )
+  }
 })
