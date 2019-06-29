@@ -4,3 +4,7 @@ __pycache__
 *.bat
 *.txt
 /jar/*
+node_modules
+.eslintrc.js
+package.json
+package-lock.json

@@ -29,7 +29,7 @@ No special requirements but Google Chrome browser is recommended.
 
 ## Usage
 
-* Clone the repository to the document root of any HTTP server and visit the "index.html" page
+* Open `index.html` using any browser
 * Or alternatively visit https://asaeles.github.io/neighborhood-map/
 
 ## Known Issues

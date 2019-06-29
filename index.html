@@ -28,6 +28,7 @@
     <!-- <<<<<<< Internal Java Scripts >>>>>>> -->
     <script src="js/app.js"></script>
     <script src="js/maps.js"></script>
+    <script src="json/mcdonalds.js"></script>
   </head>
   <body>
     <header>
@@ -55,7 +56,7 @@
         <div class="sidebar-header">
           <h5>McDonald's</h5>
         </div>
-        <ul class="nav nav-tabs nav-justified" id="sidebar-tabs" role="tablist">
+        <ul class="nav nav-tabs nav-justified" id="sidebar-tabs" role="tablist" hidden>
           <li class="nav-item">
             <a
               class="nav-link"
@@ -89,6 +90,7 @@
             id="search"
             role="tabpanel"
             aria-labelledby="search-tab"
+            hidden
           >
             <form>
               <div class="form-group mt-3">
@@ -250,6 +252,27 @@
       <!-- Page Content -->
       <main class="w-100">
         <div class="w-100 h-100" id="map"></div>
+        <!-- This element will passed to the Google Maps large info window
+        to be used as content for the window and still make use
+        of KO bindings -->
+        <div id="info-window" data-bind="with: currentPlace()">
+          <h6 data-bind="text: title"></h6>
+          <div
+            data-bind="text: photoStatus,
+              visible: photoStatus() != ''"
+          ></div>
+          <div>
+            <a
+              rel="noopener noreferrer"
+              target="_blank"
+              data-bind="attr: { href: photoAttribution,
+              visible: photoStatus() == ''}"
+            >
+              <img data-bind="attr: { src: photoUrl }" />
+            </a>
+          </div>
+          <small id="attribution">Photos provided by Foursquare</small>
+        </div>
       </main>
     </div>
     <footer>
@@ -262,7 +285,9 @@
         data-autohide="false"
       >
         <div class="toast-header">
-          <strong id="toast-title" class="mr-auto">Bootstrap</strong>
+          <strong class="mr-auto" data-bind="text: toastTitle"
+            >Bootstrap</strong
+          >
           <button
             type="button"
             class="ml-2 mb-1 close"
@@ -272,9 +297,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div id="toast-message" class="toast-body">
-          Hello, world! This is a toast message.
-        </div>
+        <div class="toast-body" data-bind="html: toastMessage"></div>
       </div>
     </footer>
     <script
